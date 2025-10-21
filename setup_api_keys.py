@@ -1,100 +1,88 @@
 """
 Setup API Keys for OpenBB Platform
-This script configures all API credentials for data providers
+This script helps you configure API credentials for data providers
+
+IMPORTANT: Do NOT commit your actual API keys to Git!
+Set them as environment variables instead.
 """
 from openbb import obb
 import os
 
 def setup_api_keys():
-    """Configure API keys for all data providers"""
+    """
+    Configure API keys for OpenBB Platform data providers
+
+    You need to obtain API keys from:
+    1. Financial Modeling Prep (FMP): https://site.financialmodelingprep.com/developer/docs
+    2. Polygon.io: https://polygon.io/
+    3. Alpha Vantage: https://www.alphavantage.co/support/#api-key
+    """
 
     print("=" * 60)
     print("OpenBB Platform API Key Configuration")
     print("=" * 60)
 
-    # API Keys
-    api_keys = {
-        'fmp_api_key': 'aMygwSPUSv1KUf1OxlVPvk12JrJnIGpi',
-        'polygon_api_key': 'hzQYA0NSR15nlAT3Bym3nFCsTuF05inq',
-        'alpha_vantage_api_key': 'OmM1MWM2NWU5Yjg2NzEzNGI1ZTQ2NzFlOGFiMzQ3M2Ji'
-    }
+    # Check if keys are already set in environment
+    fmp_key = os.environ.get('OPENBB_FMP_API_KEY', '')
+    polygon_key = os.environ.get('OPENBB_POLYGON_API_KEY', '')
+    av_key = os.environ.get('OPENBB_ALPHA_VANTAGE_API_KEY', '')
 
-    print("\nConfiguring API keys...")
+    if not fmp_key:
+        print("\n[!] FMP API Key not found in environment")
+        print("    Get your free key at: https://site.financialmodelingprep.com/developer/docs")
+        fmp_key = input("    Enter your FMP API key (or press Enter to skip): ").strip()
 
+    if not polygon_key:
+        print("\n[!] Polygon API Key not found in environment")
+        print("    Get your free key at: https://polygon.io/")
+        polygon_key = input("    Enter your Polygon API key (or press Enter to skip): ").strip()
+
+    if not av_key:
+        print("\n[!] Alpha Vantage API Key not found in environment")
+        print("    Get your free key at: https://www.alphavantage.co/support/#api-key")
+        av_key = input("    Enter your Alpha Vantage API key (or press Enter to skip): ").strip()
+
+    # Set credentials
+    configured = []
     try:
-        # Set credentials using OpenBB user settings
-        for key_name, key_value in api_keys.items():
-            provider = key_name.replace('_api_key', '')
-            print(f"  Setting {provider} API key...")
+        if fmp_key:
+            obb.user.credentials.fmp_api_key = fmp_key
+            os.environ['OPENBB_FMP_API_KEY'] = fmp_key
+            configured.append("FMP")
 
-            # Set the credential
-            obb.user.credentials.__setattr__(key_name, key_value)
+        if polygon_key:
+            obb.user.credentials.polygon_api_key = polygon_key
+            os.environ['OPENBB_POLYGON_API_KEY'] = polygon_key
+            configured.append("Polygon")
 
-        # Save the configuration
-        print("\nSaving configuration...")
-        obb.user.save()
+        if av_key:
+            obb.user.credentials.alpha_vantage_api_key = av_key
+            os.environ['OPENBB_ALPHA_VANTAGE_API_KEY'] = av_key
+            configured.append("Alpha Vantage")
 
-        print("\n" + "=" * 60)
-        print("[OK] All API keys configured successfully!")
-        print("=" * 60)
+        if configured:
+            print("\n" + "=" * 60)
+            print(f"[OK] Configured: {', '.join(configured)}")
+            print("=" * 60)
 
-        print("\nConfigured providers:")
-        print("  - Financial Modeling Prep (FMP)")
-        print("  - Polygon.io")
-        print("  - Alpha Vantage")
+            print("\nTo make these keys permanent, add them to your environment variables:")
+            print("\nWindows (Command Prompt):")
+            if fmp_key:
+                print(f'  SET OPENBB_FMP_API_KEY={fmp_key}')
+            if polygon_key:
+                print(f'  SET OPENBB_POLYGON_API_KEY={polygon_key}')
+            if av_key:
+                print(f'  SET OPENBB_ALPHA_VANTAGE_API_KEY={av_key}')
 
-        print("\nYou can now fetch real market data from these providers!")
-
-    except Exception as e:
-        print(f"\n[ERROR] Failed to configure API keys: {e}")
-        print("\nTrying alternative method (environment variables)...")
-
-        # Fallback: Set as environment variables
-        os.environ['OPENBB_FMP_API_KEY'] = api_keys['fmp_api_key']
-        os.environ['OPENBB_POLYGON_API_KEY'] = api_keys['polygon_api_key']
-        os.environ['OPENBB_ALPHA_VANTAGE_API_KEY'] = api_keys['alpha_vantage_api_key']
-
-        print("\n[OK] API keys set as environment variables for this session")
-        print("Note: These will need to be reconfigured each time you restart")
-
-def verify_configuration():
-    """Verify that API keys are properly configured"""
-
-    print("\n" + "=" * 60)
-    print("Verifying Configuration")
-    print("=" * 60)
-
-    # Check credentials
-    try:
-        fmp_key = obb.user.credentials.fmp_api_key
-        polygon_key = obb.user.credentials.polygon_api_key
-        av_key = obb.user.credentials.alpha_vantage_api_key
-
-        print("\nCredentials Status:")
-        print(f"  FMP: {'[OK] Configured' if fmp_key else '[X] Not configured'}")
-        print(f"  Polygon: {'[OK] Configured' if polygon_key else '[X] Not configured'}")
-        print(f"  Alpha Vantage: {'[OK] Configured' if av_key else '[X] Not configured'}")
-
-        if all([fmp_key, polygon_key, av_key]):
-            print("\n[OK] All API keys are configured!")
-            return True
+            print("\nOr add them to start_backend_with_keys.bat")
         else:
-            print("\n[WARNING] Some API keys are missing")
-            return False
+            print("\n[WARNING] No API keys configured")
+            print("The system will use sample data for demonstration")
 
     except Exception as e:
-        print(f"\n[ERROR] Could not verify configuration: {e}")
-        return False
+        print(f"\n[ERROR] Configuration failed: {e}")
 
 if __name__ == "__main__":
     print("\n")
     setup_api_keys()
-    verify_configuration()
-
-    print("\n" + "=" * 60)
-    print("Next Steps:")
-    print("=" * 60)
-    print("1. Run test_symbol.py to test data fetching")
-    print("2. Restart your backend server (if running)")
-    print("3. Test OpenBB Workspace connection")
     print("\n")

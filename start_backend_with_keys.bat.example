@@ -1,0 +1,39 @@
+@echo off
+REM BMNR Stock Analysis Backend Startup Script with API Keys
+REM
+REM IMPORTANT: Replace YOUR_XXX_API_KEY_HERE with your actual API keys!
+REM Get free API keys from:
+REM   - FMP: https://site.financialmodelingprep.com/developer/docs
+REM   - Polygon: https://polygon.io/
+
+echo ============================================================
+echo BMNR Stock Analysis Backend
+echo ============================================================
+echo.
+
+REM Set your API keys here (REPLACE with your actual keys!)
+SET OPENBB_FMP_API_KEY=YOUR_FMP_API_KEY_HERE
+SET OPENBB_POLYGON_API_KEY=YOUR_POLYGON_API_KEY_HERE
+
+REM Activate conda environment and start backend
+call conda activate bmnr_analysis
+if errorlevel 1 (
+    echo [ERROR] Failed to activate conda environment
+    echo Please make sure conda is installed and bmnr_analysis environment exists
+    pause
+    exit /b 1
+)
+
+cd /d "%~dp0backend"
+echo.
+echo Starting backend server...
+echo Backend: http://localhost:8000
+echo API Docs: http://localhost:8000/docs
+echo.
+echo Press CTRL+C to stop
+echo ============================================================
+echo.
+
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+pause

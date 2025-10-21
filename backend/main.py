@@ -18,28 +18,41 @@ import plotly.graph_objects as go
 # Add parent directory to path to import src modules
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Configure API keys BEFORE importing OpenBB modules
+# Configure API keys from environment variables
 from openbb import obb
 
-# Set API credentials
-API_KEYS = {
-    'fmp_api_key': 'aMygwSPUSv1KUf1OxlVPvk12JrJnIGpi',
-    'polygon_api_key': 'hzQYA0NSR15nlAT3Bym3nFCsTuF05inq',
-}
+# Read API credentials from environment variables
+# Set these before starting the backend:
+# SET OPENBB_FMP_API_KEY=your_fmp_key_here
+# SET OPENBB_POLYGON_API_KEY=your_polygon_key_here
 
-# Configure environment variables
-for key, value in API_KEYS.items():
-    env_key = f'OPENBB_{key.upper()}'
-    os.environ[env_key] = value
+fmp_key = os.environ.get('OPENBB_FMP_API_KEY', '')
+polygon_key = os.environ.get('OPENBB_POLYGON_API_KEY', '')
 
 # Set credentials directly
-try:
-    obb.user.credentials.fmp_api_key = API_KEYS['fmp_api_key']
-    obb.user.credentials.polygon_api_key = API_KEYS['polygon_api_key']
-    print("[OK] API keys configured successfully")
-except Exception as e:
-    print(f"[WARNING] Could not set API keys directly: {e}")
-    print("         Using environment variables instead")
+if fmp_key or polygon_key:
+    try:
+        if fmp_key:
+            obb.user.credentials.fmp_api_key = fmp_key
+        if polygon_key:
+            obb.user.credentials.polygon_api_key = polygon_key
+
+        configured_providers = []
+        if fmp_key:
+            configured_providers.append("FMP")
+        if polygon_key:
+            configured_providers.append("Polygon")
+
+        if configured_providers:
+            print(f"[OK] API keys configured: {', '.join(configured_providers)}")
+        else:
+            print("[WARNING] No API keys found in environment variables")
+    except Exception as e:
+        print(f"[WARNING] Could not set API keys: {e}")
+        print("         Make sure environment variables are set correctly")
+else:
+    print("[WARNING] No API keys configured - using fallback sample data")
+    print("         Set OPENBB_FMP_API_KEY and/or OPENBB_POLYGON_API_KEY environment variables")
 
 from src.data_fetcher import StockDataFetcher
 from src.indicators import TechnicalIndicators, FundamentalIndicators
