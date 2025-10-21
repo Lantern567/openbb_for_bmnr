@@ -7,7 +7,7 @@ from plotly.subplots import make_subplots
 import pandas as pd
 import numpy as np
 from typing import Dict, List, Optional
-from config import (
+from .config import (
     CHART_HEIGHT, CHART_WIDTH, CHART_THEME,
     COLOR_BULLISH, COLOR_BEARISH, COLOR_NEUTRAL, COLOR_MA
 )

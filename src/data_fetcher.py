@@ -8,6 +8,8 @@ from datetime import datetime
 from typing import Dict, Optional, Tuple
 import os
 import json
+import time
+from .sample_data import generate_sample_stock_data, generate_sample_balance_sheet
 
 
 class StockDataFetcher:
@@ -15,7 +17,7 @@ class StockDataFetcher:
     Fetches financial data for stock analysis
     """
 
-    def __init__(self, symbol: str):
+    def __init__(self, symbol: str, use_sample_data: bool = False):
         """
         Initialize the data fetcher
 
@@ -23,17 +25,23 @@ class StockDataFetcher:
         -----------
         symbol : str
             Stock ticker symbol (e.g., 'BMNR')
+        use_sample_data : bool
+            If True, use sample data instead of fetching from APIs (for testing)
         """
         self.symbol = symbol.upper()
+        self.use_sample_data = use_sample_data
 
     def get_historical_data(
         self,
         start_date: str,
         end_date: str,
-        provider: str = "yfinance"
+        provider: Optional[str] = None,
+        max_retries: int = 2,
+        retry_delay: int = 3,
+        fallback_to_sample: bool = True
     ) -> pd.DataFrame:
         """
-        Get historical price data
+        Get historical price data with automatic fallback to multiple providers
 
         Parameters:
         -----------
@@ -41,35 +49,111 @@ class StockDataFetcher:
             Start date in format 'YYYY-MM-DD'
         end_date : str
             End date in format 'YYYY-MM-DD'
-        provider : str
-            Data provider (default: 'yfinance')
+        provider : Optional[str]
+            Specific data provider to use. If None, will try multiple providers in order
+        max_retries : int
+            Maximum number of retry attempts per provider (default: 2)
+        retry_delay : int
+            Delay in seconds between retries (default: 3)
+        fallback_to_sample : bool
+            If True, use sample data when all providers fail (default: True)
 
         Returns:
         --------
         pd.DataFrame
             Historical price data with columns: date, open, high, low, close, volume
         """
-        try:
-            print(f"Fetching historical data for {self.symbol} from {start_date} to {end_date}...")
+        # If use_sample_data flag is set, return sample data immediately
+        if self.use_sample_data:
+            print(f"[DEMO MODE] Using sample data for {self.symbol}")
+            from datetime import datetime as dt
+            days = (dt.strptime(end_date, '%Y-%m-%d') - dt.strptime(start_date, '%Y-%m-%d')).days
+            return generate_sample_stock_data(self.symbol, start_date, end_date)
 
-            output = obb.equity.price.historical(
-                symbol=self.symbol,
-                start_date=start_date,
-                end_date=end_date,
-                provider=provider
-            )
+        # List of providers to try (in order of preference)
+        # Polygon is first because it supports BMNR and has good free tier
+        providers_to_try = [
+            "polygon",     # Polygon.io - Works with BMNR! (free tier: 5 calls/min)
+            "fmp",         # Financial Modeling Prep (free tier: 250 calls/day)
+            "yfinance",    # Yahoo Finance (free but has rate limits)
+        ]
 
-            df = output.to_dataframe()
+        # If specific provider requested, only try that one
+        if provider:
+            providers_to_try = [provider]
 
-            if df.empty:
-                raise ValueError(f"No data found for {self.symbol}")
+        last_error = None
 
-            print(f"Successfully fetched {len(df)} records")
-            return df
+        for provider_name in providers_to_try:
+            print(f"Trying provider: {provider_name}")
 
-        except Exception as e:
-            print(f"Error fetching historical data: {str(e)}")
-            raise
+            for attempt in range(max_retries):
+                try:
+                    if attempt > 0:
+                        print(f"  Retry attempt {attempt + 1}/{max_retries} after {retry_delay}s delay...")
+                        time.sleep(retry_delay)
+
+                    print(f"  Fetching {self.symbol} data from {start_date} to {end_date}...")
+
+                    output = obb.equity.price.historical(
+                        symbol=self.symbol,
+                        start_date=start_date,
+                        end_date=end_date,
+                        provider=provider_name
+                    )
+
+                    df = output.to_dataframe()
+
+                    if df.empty:
+                        raise ValueError(f"No data found for {self.symbol}")
+
+                    print(f"  SUCCESS: Fetched {len(df)} records from {provider_name}")
+                    return df
+
+                except Exception as e:
+                    error_msg = str(e)
+                    last_error = e
+
+                    # Check if it's a rate limit error
+                    if "rate limit" in error_msg.lower() or "too many requests" in error_msg.lower():
+                        print(f"  Rate limit hit on {provider_name}")
+                        if attempt < max_retries - 1:
+                            continue  # Retry same provider
+                        else:
+                            print(f"  Max retries for {provider_name}, trying next provider...")
+                            break  # Try next provider
+                    elif "api key" in error_msg.lower() or "credentials" in error_msg.lower():
+                        print(f"  {provider_name} requires API key, trying next provider...")
+                        break  # Try next provider
+                    else:
+                        # Other error
+                        print(f"  Error with {provider_name}: {error_msg}")
+                        if attempt < max_retries - 1:
+                            continue  # Retry
+                        else:
+                            break  # Try next provider
+
+        # If we get here, all providers failed
+        print(f"\nFailed to fetch data from all providers: {providers_to_try}")
+
+        if fallback_to_sample:
+            print("\n" + "="*60)
+            print("[DEMO MODE] Falling back to sample data for demonstration")
+            print("="*60)
+            print("Note: This is generated sample data, not real market data.")
+            print("Solutions to get real data:")
+            print("1. Wait 5-10 minutes for rate limit to reset")
+            print("2. Set up a free API key (FMP: https://financialmodelingprep.com)")
+            print("3. Use the system with sample data for now")
+            print("="*60 + "\n")
+
+            return generate_sample_stock_data(self.symbol, start_date, end_date)
+        else:
+            print("Possible solutions:")
+            print("1. Wait a few minutes and try again (rate limiting)")
+            print("2. Set up API keys for providers like FMP or Polygon")
+            print("3. Use a different stock symbol")
+            raise last_error
 
     def get_company_profile(self, provider: str = "yfinance") -> Dict:
         """

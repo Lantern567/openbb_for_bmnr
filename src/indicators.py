@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 import ta
 from typing import Dict, List, Optional
-from mnav_calculator import mNAVCalculator
+from .mnav_calculator import mNAVCalculator
 
 
 class TechnicalIndicators:

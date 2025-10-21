@@ -1,0 +1,246 @@
+{
+  "bmnr_technical_chart": {
+    "name": "BMNR Technical Analysis",
+    "description": "Interactive candlestick chart with moving averages and technical indicators",
+    "category": "Stock Analysis",
+    "type": "chart",
+    "endpoint": "bmnr/technical_chart",
+    "gridData": {
+      "w": 40,
+      "h": 12
+    },
+    "source": "BMNR Analysis Backend",
+    "params": [
+      {
+        "paramName": "symbol",
+        "value": "BMNR",
+        "label": "Stock Symbol",
+        "type": "text",
+        "description": "Stock ticker symbol"
+      },
+      {
+        "paramName": "days",
+        "value": 365,
+        "label": "Days of History",
+        "type": "number",
+        "description": "Number of days of historical data to display"
+      },
+      {
+        "paramName": "raw",
+        "value": false,
+        "label": "Raw Data (for AI)",
+        "type": "boolean",
+        "description": "Return raw data instead of chart for AI analysis"
+      }
+    ]
+  },
+  "bmnr_mnav_chart": {
+    "name": "BMNR mNAV Analysis",
+    "description": "Modified Net Asset Value analysis showing stock price vs mNAV with premium/discount",
+    "category": "Valuation",
+    "type": "chart",
+    "endpoint": "bmnr/mnav_chart",
+    "gridData": {
+      "w": 40,
+      "h": 10
+    },
+    "source": "BMNR Analysis Backend",
+    "params": [
+      {
+        "paramName": "symbol",
+        "value": "BMNR",
+        "label": "Stock Symbol",
+        "type": "text",
+        "description": "Stock ticker symbol"
+      },
+      {
+        "paramName": "days",
+        "value": 365,
+        "label": "Days of History",
+        "type": "number",
+        "description": "Number of days of historical data"
+      },
+      {
+        "paramName": "shares_outstanding",
+        "value": 10000000,
+        "label": "Shares Outstanding",
+        "type": "number",
+        "description": "Total number of shares outstanding"
+      },
+      {
+        "paramName": "property_fair_value",
+        "value": null,
+        "label": "Property Fair Value ($)",
+        "type": "number",
+        "description": "Fair value of investment properties (optional)"
+      },
+      {
+        "paramName": "property_book_value",
+        "value": null,
+        "label": "Property Book Value ($)",
+        "type": "number",
+        "description": "Book value of investment properties (optional)"
+      },
+      {
+        "paramName": "deferred_tax_rate",
+        "value": 0.0,
+        "label": "Deferred Tax Rate",
+        "type": "number",
+        "description": "Tax rate for deferred tax adjustment (0.0 - 0.30)"
+      },
+      {
+        "paramName": "raw",
+        "value": false,
+        "label": "Raw Data (for AI)",
+        "type": "boolean",
+        "description": "Return raw data instead of chart"
+      }
+    ]
+  },
+  "bmnr_price_table": {
+    "name": "BMNR Price Data",
+    "description": "Historical price data table with OHLCV (Open, High, Low, Close, Volume)",
+    "category": "Stock Analysis",
+    "type": "table",
+    "endpoint": "bmnr/price_table",
+    "gridData": {
+      "w": 30,
+      "h": 10
+    },
+    "source": "BMNR Analysis Backend",
+    "params": [
+      {
+        "paramName": "symbol",
+        "value": "BMNR",
+        "label": "Stock Symbol",
+        "type": "text",
+        "description": "Stock ticker symbol"
+      },
+      {
+        "paramName": "days",
+        "value": 90,
+        "label": "Days of History",
+        "type": "number",
+        "description": "Number of days to display"
+      }
+    ],
+    "data": {
+      "table": {
+        "chartView": {
+          "enabled": true,
+          "chartType": "line"
+        },
+        "showAll": false,
+        "columnsDefs": [
+          {
+            "headerName": "Date",
+            "field": "date",
+            "chartDataType": "category"
+          },
+          {
+            "headerName": "Open",
+            "field": "open",
+            "type": "number"
+          },
+          {
+            "headerName": "High",
+            "field": "high",
+            "type": "number"
+          },
+          {
+            "headerName": "Low",
+            "field": "low",
+            "type": "number"
+          },
+          {
+            "headerName": "Close",
+            "field": "close",
+            "type": "number"
+          },
+          {
+            "headerName": "Volume",
+            "field": "volume",
+            "type": "number"
+          }
+        ]
+      }
+    }
+  },
+  "bmnr_metrics": {
+    "name": "BMNR Key Metrics",
+    "description": "Real-time key metrics including price, RSI, and mNAV ratios",
+    "category": "Metrics",
+    "type": "metric",
+    "endpoint": "bmnr/metrics",
+    "gridData": {
+      "w": 20,
+      "h": 8
+    },
+    "source": "BMNR Analysis Backend",
+    "params": [
+      {
+        "paramName": "symbol",
+        "value": "BMNR",
+        "label": "Stock Symbol",
+        "type": "text",
+        "description": "Stock ticker symbol"
+      },
+      {
+        "paramName": "shares_outstanding",
+        "value": 10000000,
+        "label": "Shares Outstanding",
+        "type": "number",
+        "description": "Total shares outstanding for mNAV calculation"
+      }
+    ]
+  },
+  "bmnr_scenario_analysis": {
+    "name": "BMNR mNAV Scenarios",
+    "description": "Compare multiple mNAV valuation scenarios (Conservative, Base, Optimistic)",
+    "category": "Valuation",
+    "type": "chart",
+    "endpoint": "bmnr/scenario_analysis",
+    "gridData": {
+      "w": 30,
+      "h": 8
+    },
+    "source": "BMNR Analysis Backend",
+    "params": [
+      {
+        "paramName": "symbol",
+        "value": "BMNR",
+        "label": "Stock Symbol",
+        "type": "text",
+        "description": "Stock ticker symbol"
+      },
+      {
+        "paramName": "shares_outstanding",
+        "value": 10000000,
+        "label": "Shares Outstanding",
+        "type": "number",
+        "description": "Total shares outstanding"
+      },
+      {
+        "paramName": "conservative_mnav",
+        "value": null,
+        "label": "Conservative mNAV ($)",
+        "type": "number",
+        "description": "Conservative valuation estimate (optional)"
+      },
+      {
+        "paramName": "base_mnav",
+        "value": null,
+        "label": "Base Case mNAV ($)",
+        "type": "number",
+        "description": "Base case valuation (optional, auto-calculated if not provided)"
+      },
+      {
+        "paramName": "optimistic_mnav",
+        "value": null,
+        "label": "Optimistic mNAV ($)",
+        "type": "number",
+        "description": "Optimistic valuation estimate (optional)"
+      }
+    ]
+  }
+}

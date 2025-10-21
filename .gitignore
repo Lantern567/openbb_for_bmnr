@@ -19,7 +19,6 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
 # Virtual Environment
 venv/
@@ -27,7 +26,7 @@ ENV/
 env/
 .venv
 
-# IDE
+# IDEs
 .vscode/
 .idea/
 *.swp
@@ -37,37 +36,31 @@ env/
 
 # Jupyter Notebook
 .ipynb_checkpoints
-*.ipynb_checkpoints/
 
-# Data files (cached data)
+# Data files
 data/raw/*.csv
 data/processed/*.csv
-*.csv
 
 # Output files
-output/*.png
-output/*.html
-output/*.pdf
-
-# Streamlit
-.streamlit/secrets.toml
-
-# Environment variables
-.env
-.env.local
+output/
+*.png
+*.jpg
 
 # Logs
 *.log
-logs/
+
+# Environment variables
+.env
 
 # OS
 Thumbs.db
-.DS_Store
-
-# OpenBB
-.openbb/
 
 # Temporary files
+tmp/
+temp/
 *.tmp
-*.bak
-*.swp
+
+# Test files
+test_*.py
+debug_*.py
+nul
