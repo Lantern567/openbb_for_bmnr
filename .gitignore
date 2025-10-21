@@ -56,6 +56,7 @@ output/
 # Sensitive files with API keys
 start_backend_with_keys.bat
 stop_all_backends.bat
+.mcp.json
 
 # OS
 Thumbs.db
